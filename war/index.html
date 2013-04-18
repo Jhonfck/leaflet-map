@@ -1,0 +1,105 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<!-- The HTML 4.01 Transitional DOCTYPE declaration-->
+<!-- above set at the top of the file will set     -->
+<!-- the browser's rendering engine into           -->
+<!-- "Quirks Mode". Replacing this declaration     -->
+<!-- with a "Standards Mode" doctype is supported, -->
+<!-- but may lead to some differences in layout.   -->
+
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <title>leaflet prueba</title>
+  <link rel="stylesheet" type="text/css" href="style.css" />
+		<!--[if IE ]>
+		<script src="http://html5shiv.googlecode.com/svn/trunk/html5.js" />
+		<![endif]-->
+		<link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.5/leaflet.css" />
+		<!--[if lte IE 8]>
+		<link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.5/leaflet.ie.css" />
+		<![endif]-->
+
+		<script src="http://cdn.leafletjs.com/leaflet-0.5/leaflet.js"></script>
+		<script src="leaflet.measure/leaflet.measure.js"></script>
+
+		<script>
+			window.onload = function() {
+				//Nuestras vistas de mapas se implementan aqui
+				var cloudmadeUrl = 'http://{s}.tile.cloudmade.com/accd1d62d6594e3aa1c3383a654339d4/{styleId}/256/{z}/{x}/{y}.png', cloudmadeAttribution = 'Map data &copy; 2011 OpenStreetMap contributors, Imagery &copy; 2011 CloudMade';
+				var minimal = L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {//Se utiliza para cargar y mostrar capas de azulejos en el mapa, implementa ILayer interfaz.
+					attribution : '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+				}), midnight = L.tileLayer(cloudmadeUrl, {
+					styleId : 999,
+					attribution : cloudmadeAttribution
+				}), motorways = L.tileLayer(cloudmadeUrl, {
+					styleId : 46561,
+					attribution : cloudmadeAttribution
+				});
+
+				var map = L.map('map', {
+					measureControl : true,
+					layers : [minimal, motorways] // para activar el boton que recorre la distancia
+				});
+
+				map.addLayer(layerOsm)//Añade la capa dada al mapa
+
+				// determina las cordenadas en la que me encuentro
+				map.locate({
+					setView : true
+				}, {
+					watch : true
+				});
+				var baseMaps = {
+					"Day View" : minimal,
+					"Night View" : midnight
+
+				};
+
+				var overlayMaps = {
+					"Motorways" : motorways,
+
+				};
+				L.control.layers(baseMaps, overlayMaps).addTo(map);
+				//para activar el boton de las capas
+
+				map.setView([3.40332, -76.54930], 15);
+				//cordanadas de la USC
+
+				//evento para marcar la ublicacion de la USC
+				var marker = L.marker([3.40332, -76.54930]).addTo(map);
+				marker.bindPopup('<b>Universidad Santiago de Cali.</b><br/>Canchas de futbol.').openPopup();
+				var popup = L.popup();
+				//evento para marcar mi ubicación detectada
+				function onLocationFound(e) {
+					var radius = e.accuracy / 2;
+
+					L.marker(e.latlng).addTo(map)//marcar un punto en el mapa
+
+					.bindPopup('<b>Usted se encuentra aqui.</b>')//para abrir ventanas emergentes
+					.openPopup();
+					L.circle(e.latlng, radius).addTo(map);
+				}
+
+
+				map.on('locationfound', onLocationFound);
+			}
+			function onLocationError(e) {//por si la busqueda de geolocalizacion ha fallado
+				alert(e.message);
+			}
+
+
+			map.on('locationerror', onLocationError);
+		</script>
+
+	
+	<body>
+		<div id="map"> </div>
+		<script type="text/javascript">
+			var layerOsm = new L.TileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+				subdomains : ["a", "b", "c"],
+
+			});
+
+		</script>
+	</body>
+</html>
